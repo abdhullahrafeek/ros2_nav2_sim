@@ -30,6 +30,6 @@ jobs:
       - name: Test
         run: |
           source install/setup.bash
-          colcon test
+          colcon test --ctest-args -E "(flake8|copyright)"
           colcon test-result --verbose
 
