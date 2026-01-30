@@ -12,26 +12,29 @@ from launch_ros.actions import Node
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
 
+import yaml
+
 
 
 def generate_launch_description():
     package_name='my_robot'
     
-    map_path = os.path.join(
-        get_package_share_directory(package_name),
-        'maps'
-    )
+    with open(os.path.join(get_package_share_directory(package_name), 'config', 'launch_sim.config.yaml'), 'r') as f:
+        launch_config = yaml.safe_load(f)
+    
     
     rsp = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
-                    get_package_share_directory(package_name),'launch','rsp.launch.py'
-                )]), launch_arguments={'use_sim_time': 'true'}.items()
+                    get_package_share_directory(package_name),
+                    launch_config['rsp']['launch_directory'],
+                    launch_config['rsp']['launch_file']
+                )]),launch_arguments={'use_sim_time': launch_config['rsp']['use_sim_time']}.items()
     )
     
     world_file = os.path.join(
         get_package_share_directory(package_name),
-        'worlds',
-        'my_world.world'
+        launch_config['world_file']['world_directory'],
+        launch_config['world_file']['world_file']
     )
 
 
@@ -53,19 +56,19 @@ def generate_launch_description():
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory('nav2_bringup'), 'launch', 'navigation_launch.py')]),
                 launch_arguments={
-                    'use_sim_time': 'true',
+                    'use_sim_time': launch_config['nav2']['use_sim_time'],
                     'params_file': os.path.join(
                         get_package_share_directory('nav2_bringup'),
                         'params',
-                        'nav2_params.yaml'
+                        launch_config['nav2']['params_file']
                     )
                 }.items()
              )
 
     rviz_config = os.path.join(
         get_package_share_directory(package_name),
-        'rviz',
-        'my_robot_rviz.rviz'
+        launch_config['rviz']['rviz_directory'],
+        launch_config['rviz']['rviz_file']
     )
     
     rviz = Node(
@@ -75,13 +78,18 @@ def generate_launch_description():
         output='screen'
     )
     
+    map_path = os.path.join(
+        get_package_share_directory(package_name),
+        launch_config['map_server']['map_directory']
+    )
+    
     map_server = Node(
         package='nav2_map_server',
         executable='map_server',
         output='screen',
         parameters=[
-            {'yaml_filename': os.path.join(map_path,'my_new_map_save.yaml')},
-            {'use_sim_time': True}
+            {'yaml_filename': os.path.join(map_path,launch_config['map_server']['map_file'])},
+            {'use_sim_time': launch_config['map_server']['use_sim_time']}
         ]
     )
     
@@ -90,9 +98,9 @@ def generate_launch_description():
         executable='lifecycle_manager',
         output='screen',
         parameters=[
-            {'use_sim_time':True},
-            {'autostart':True},
-            {'node_names':['map_server']}
+            {'use_sim_time': launch_config['map_server_lifecycle']['use_sim_time']},
+            {'autostart': launch_config['map_server_lifecycle']['autostart']},
+            {'node_names': launch_config['map_server_lifecycle']['node_names']}
         ]
     )
     
@@ -101,7 +109,7 @@ def generate_launch_description():
         executable='amcl',
         output='screen',
         parameters=[
-            {'use_sim_time':True}
+            {'use_sim_time': launch_config['amcl']['use_sim_time']}
         ]
     )
     
@@ -110,9 +118,9 @@ def generate_launch_description():
         executable='lifecycle_manager',
         output='screen',
         parameters=[
-            {'use_sim_time':True},
-            {'autostart':True},
-            {'node_names':['amcl']}
+            {'use_sim_time': launch_config['amcl_lifecycle']['use_sim_time']},
+            {'autostart': launch_config['amcl_lifecycle']['autostart']},
+            {'node_names': launch_config['amcl_lifecycle']['node_names']}
         ]
     )
     
