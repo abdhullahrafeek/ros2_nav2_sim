@@ -1,0 +1,34 @@
+rsp:
+    launch_directory: 'launch'
+    launch_file: 'rsp.launch.py'
+    use_sim_time: 'true'
+    
+world_file:
+    world_directory: 'worlds'
+    world_file: 'my_world.world'
+    
+nav2:
+    use_sim_time: 'true'
+    params_file: 'nav2_params.yaml'
+    
+rviz:
+    rviz_directory: 'rviz'
+    rviz_file: 'my_robot_rviz.rviz'
+    
+map_server:
+    map_directory: 'maps'
+    map_file: 'my_new_map_save.yaml'
+    use_sim_time: True
+    
+map_server_lifecycle:
+    use_sim_time : True
+    autostart: True
+    node_names: ['map_server']
+    
+amcl:
+    use_sim_time: True
+    
+amcl_lifecycle:
+    use_sim_time : True
+    autostart: True
+    node_names: ['amcl']
