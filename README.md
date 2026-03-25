@@ -17,5 +17,7 @@ This repository contains a ROS2 project for simulating and controlling a robot w
 
 ---
 
-## Repository Structure
+## Demo Video
+
+Watch here: https://drive.google.com/file/d/1y9v-tO6xZQ4KPq5HB8be0hqMyh85dCUY/view?usp=sharing
 
